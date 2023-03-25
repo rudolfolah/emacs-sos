@@ -74,12 +74,14 @@ Returns the buffer of the uncompressed gzipped content."
 
 Modified based on fogbugz-mode, renamed from
 `fogbugz-get-response-body'."
-  (set-buffer buffer)
-  (switch-to-buffer buffer)
-  (let* ((uncompressed-buffer (sos-uncompress-callback))
-         (json-response (json-read)))
-    (kill-buffer uncompressed-buffer)
-    json-response))
+  (with-current-buffer buffer
+    (let* ((uncompressed-buffer (sos-uncompress-callback))
+           (json-response (progn
+                            (set-buffer uncompressed-buffer)
+                            (json-read))))
+      (kill-buffer uncompressed-buffer)
+      json-response)))
+
 
 (defun sos-insert-search-result (item)
   "Inserts the contents of StackOverflow JSON object, `item',
